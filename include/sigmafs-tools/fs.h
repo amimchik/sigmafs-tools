@@ -12,10 +12,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-struct filesystem {
-	struct dev		*dev;
-	struct superblock	superblock;
-};
+struct filesystem;
+struct superblock;
+struct inode;
 
 struct superblock {
 	uint32_t magic;
@@ -35,6 +34,11 @@ struct superblock {
 	uint64_t data_blocks_start;
 
 	char volume_name[16];
+};
+
+struct filesystem {
+	struct dev		*dev;
+	struct superblock	superblock;
 };
 
 /* superblock.c */
@@ -64,7 +68,7 @@ int bitarr_write_bit(struct dev *dev, uint64_t block, uint32_t offset, uint8_t r
 int bitarr_read_bit(struct dev *dev, uint64_t block, uint32_t offset, uint8_t *res);
 
 /* inode.c */
-uint64_t inode_alloc(filesystem *fs);
+uint64_t inode_alloc(struct filesystem *fs);
 int inode_read(struct filesystem *fs, struct inode *inode, uint64_t inode_id);
 int inode_write(struct filesystem *fs, struct inode inode, uint64_t inode_id);
 

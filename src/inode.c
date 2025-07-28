@@ -1,10 +1,11 @@
 #include <sigmafs-tools/fs.h>
+#include <stdint.h>
 
 
-uint64_t inode_alloc(filesystem *fs)
+uint64_t inode_alloc(struct filesystem *fs)
 {
 	if (!fs || !fs->dev)
-		return UINT64T_MAX;
+		return UINT64_MAX;
 
 }
 

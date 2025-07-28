@@ -1,7 +1,7 @@
 #include <sigmafs-tools/fs.h>
 
 
-int bitarr_write_bit(struct dev *dev, uint64_t block, uint64_t offset, uint8_t res)
+int bitarr_write_bit(struct dev *dev, uint64_t block, uint32_t offset, uint8_t res)
 {
 	if (!dev)
 		return 1;
