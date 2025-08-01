@@ -6,10 +6,12 @@ BUILD_DIR=build
 OBJ_DIR=$(BUILD_DIR)/obj
 BIN_DIR=$(BUILD_DIR)/bin
 
-SRCS = $(wildcard $(SRC_DIR)/*.c)
+HDRS = $(shell find include -type f -name "*.h")
+SRCS = $(shell find $(SRC_DIR) -type f -name "*.c")
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 TARGET = $(BIN_DIR)/my_program
+
 
 all: dirs $(TARGET)
 
@@ -17,8 +19,7 @@ $(TARGET): $(OBJS)
 	@echo "=> Linking $(patsubst $(OBJ_DIR)/%,%,$^) -> $(TARGET)"
 	@$(CC) $(OBJS) -o $(TARGET)
 
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HDRS)
 	@echo "===> Compiling $(patsubst $(SRC_DIR)/%,%,$<) -> $(patsubst $(OBJ_DIR)/%,%,$@)"
 	@mkdir -p $(OBJ_DIR)
 	@$(CC) $(CFLAGS) -c $< -o $@
