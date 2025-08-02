@@ -4,6 +4,14 @@
 #define SIGMAFS_MAGIC 0x00ff1233
 #define SIGMAFS_SUPER_SIZE 1024
 #define SIGMAFS_SUPER_OFFSET 1024
+#define SIGMAFS_INODE_SIZE 512
+#define SIGMAFS_VERSION_MAJOR 1
+#define SIGMAFS_VERSION_MINOR 1
+#define SIGMAFS_ROOT_INODE_ID 0
+
+#define FS_VERSION(major, minor) (((uint32_t)(major) << 16) | (uint32_t)(minor))
+#define FS_GET_MAJOR(version) ((uint16_t)((version) >> 16))
+#define FS_GET_MINOR(version) ((uint16_t)((version) & 0xFFFF))
 
 #define INODE_DIRECT_BLOCKS 8
 
@@ -22,6 +30,8 @@ struct superblock {
 
 	uint32_t block_size;
 	uint32_t inode_size;
+
+	uint32_t dev_block_size;
 
 	uint32_t total_blocks;
 	uint32_t total_inodes;
@@ -69,7 +79,13 @@ int bitarr_read_bit(struct dev *dev, uint32_t block, uint32_t offset, uint8_t *r
 
 /* inode.c */
 int inode_alloc(struct filesystem *fs);
+int inode_free(struct filesystem *fs, uint32_t inode_id);
 int inode_read(struct filesystem *fs, struct inode *inode, uint32_t inode_id);
 int inode_write(struct filesystem *fs, struct inode inode, uint32_t inode_id);
+
+/* format.c */
+int make_fs(struct dev *dev, struct filesystem *output);
+
+/* */
 
 #endif /*!_FS_H*/

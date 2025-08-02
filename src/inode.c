@@ -2,24 +2,6 @@
 #include <sigmafs-tools/le.h>
 #include <stdint.h>
 
-
-int inode_alloc(struct filesystem *fs)
-{
-	if (!fs || !fs->dev)
-		return -1;
-	for (int i = 0; i < fs->superblock.total_inodes; i++) {
-		uint8_t bit;
-		if (bitarr_read_bit(fs->dev, i / fs->superblock.block_size, i % fs->superblock.block_size, &bit))
-			return -2;
-		if (bit)
-			continue;
-		if (bitarr_write_bit(fs->dev, i / fs->superblock.block_size, i % fs->superblock.block_size, 1))
-			return -2;
-		return i;
-	}
-	return -1;
-}
-
 static uint32_t get_inode_block_size(struct filesystem *fs)
 {
 	if (!fs)
@@ -35,6 +17,34 @@ static uint32_t get_inode_block(struct filesystem *fs, uint32_t inode_id)
 	return fs->superblock.inode_table_block + inode_id * inode_block_size;
 }
 
+int inode_alloc(struct filesystem *fs)
+{
+	if (!fs || !fs->dev)
+		return -1;
+	for (uint32_t i = 0; i < fs->superblock.total_inodes; i++) {
+		uint8_t bit;
+		uint32_t block = i / (8 * get_inode_block_size(fs) * fs->superblock.block_size);
+		uint32_t bit_offset = i % (8 * get_inode_block_size(fs) * fs->superblock.block_size);
+		if (bitarr_read_bit(fs->dev, block, bit_offset, &bit))
+			return -2;
+		if (bit)
+			continue;
+		if (bitarr_write_bit(fs->dev, block, bit_offset, 1))
+			return -2;
+		return i;
+	}
+	return -1;
+}
+
+int inode_free(struct filesystem *fs, uint32_t inode_id)
+{
+	if (!fs || !fs->dev)
+		return 1;
+	uint32_t block = inode_id / (8 * get_inode_block_size(fs) * fs->superblock.block_size);
+	uint32_t bit_offset = inode_id % (8 * get_inode_block_size(fs) * fs->superblock.block_size);
+	return bitarr_write_bit(fs->dev, block, bit_offset, 1);
+}
+
 int inode_read(struct filesystem *fs, struct inode *inode, uint32_t inode_id)
 {
 	if (!fs || !fs->dev || !inode)
@@ -44,7 +54,7 @@ int inode_read(struct filesystem *fs, struct inode *inode, uint32_t inode_id)
 	uint8_t *buf = malloc(blk_size * fs->superblock.block_size);
 	if (!buf)
 		return 1;
-	for (int i = 0; i < blk_size; i++) {
+	for (uint32_t i = 0; i < blk_size; i++) {
 		if (dev_read_block(fs->dev, addr + i, buf + i * fs->superblock.block_size))
 			return 1;
 	}
@@ -76,7 +86,6 @@ int inode_read(struct filesystem *fs, struct inode *inode, uint32_t inode_id)
 	inode->i_flags = read_u32_le(buf + i);
 	i += 32;
 	inode->i_generation = read_u32_le(buf + i);
-	i += 32;
 	free(buf);
 	return 0;
 }
@@ -118,7 +127,7 @@ int inode_write(struct filesystem *fs, struct inode inode, uint32_t inode_id)
 	write_u32_le(buf + i, inode.i_flags);
 	i += 32;
 	write_u32_le(buf + i, inode.i_generation);
-	for (int i = 0; i < blk_size; i++) {
+	for (uint32_t i = 0; i < blk_size; i++) {
 		if (dev_write_block(fs->dev, addr + i, buf + i * fs->superblock.block_size))
 			return 1;
 	}

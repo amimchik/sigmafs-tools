@@ -12,7 +12,6 @@ OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 TARGET = $(BIN_DIR)/my_program
 
-
 all: dirs $(TARGET)
 
 $(TARGET): $(OBJS)

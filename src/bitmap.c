@@ -43,7 +43,7 @@ int bitarr_read_bit(struct dev *dev, uint32_t block, uint32_t offset, uint8_t *r
 		free(buf);
 		return 1; 
 	} 
-	*res = (buf[byte_offset] | 1 << bit) ? 1 : 0;
+	*res = (buf[block_offset] | 1 << bit) ? 1 : 0;
 	free(buf); 
 	return 0; 
 }
