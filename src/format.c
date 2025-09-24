@@ -12,6 +12,9 @@ static uint32_t get_inode_block_size(struct filesystem *fs)
 	return (fs->superblock.inode_size + fs->superblock.block_size - 1) / fs->superblock.block_size;
 }
 
+/**
+ * make_fs() -- formats filesystem
+ */
 int make_fs(struct dev *dev, struct filesystem *output, struct superblock initial_super)
 {
 	if (!dev)

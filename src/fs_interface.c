@@ -11,6 +11,10 @@ int create_fs_interface(struct filesystem *fs, struct fs_interface_state *out)
 
 int fs_interface_cd(struct fs_interface_state *state, uint8_t *dir_name, uint16_t dir_name_len)
 {
+	if (dir_name_len == 1 && dir_name[0] == '/') {
+		state->wd_id = SIGMAFS_ROOT_INODE_ID;
+		return 0;
+	}
 	int entry_id = get_entry_inode(state->fs, state->wd_id, dir_name, dir_name_len);
 	if (entry_id < 0)
 		return entry_id;

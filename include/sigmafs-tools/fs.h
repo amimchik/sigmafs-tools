@@ -1,6 +1,10 @@
 #ifndef _FS_H
 #define _FS_H
 
+/*
+ * sigmafs main header
+ */
+
 #define SIGMAFS_MAGIC 0x00ff1233
 #define SIGMAFS_SUPER_SIZE 1024
 #define SIGMAFS_SUPER_OFFSET 1024
@@ -122,6 +126,7 @@ struct fs_interface_state {
 	uint32_t wd_id;
 	struct filesystem *fs;
 };
+
 int create_fs_interface(struct filesystem *fs, struct fs_interface_state *out);
 int fs_interface_cd(struct fs_interface_state *state, uint8_t *dir_name, uint16_t dir_name_len);
 int fs_interface_ls(struct fs_interface_state *state, struct directory_entry **entries, uint32_t *len);
@@ -131,6 +136,5 @@ int fs_interface_rm(struct fs_interface_state *state, uint8_t *name, uint16_t na
 int fs_interface_rmdir(struct fs_interface_state *state, uint8_t *name, uint16_t name_len);
 int fs_interface_cat(struct fs_interface_state *state, uint8_t *name, uint16_t name_len, uint8_t **buf, uint64_t *buf_len);
 int fs_interface_write(struct fs_interface_state *state, uint8_t *name, uint16_t name_len, uint8_t *buf, uint64_t buf_len);
-
 
 #endif /*!_FS_H*/

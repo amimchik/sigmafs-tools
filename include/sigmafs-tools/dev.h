@@ -6,11 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Type of device */
 enum dev_type {
 	DT_RAM,
 	DT_FILE,
 };
 
+/* Device representation */
 struct dev {
 	int type;
 	size_t block_size;
@@ -21,6 +23,7 @@ struct dev {
 	};
 };
 
+/* dev.c */
 int dev_create_ramdisk(struct dev *out, size_t block_size, size_t blocks_count);
 int dev_create_file(struct dev *out, const char *path, size_t block_size, size_t blocks_count);
 

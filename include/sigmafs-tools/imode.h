@@ -1,6 +1,10 @@
 #ifndef _IMODE_H
 #define _IMODE_H
 
+/*
+ * Functions to work with imode
+ */
+
 #define IMODE_IFSOCK		0xC000
 #define IMODE_IFLNK		0xA000
 #define IMODE_IFREG		0x8000

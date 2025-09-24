@@ -1,5 +1,6 @@
 #include <sigmafs-tools/fs.h>
 #include <sigmafs-tools/le.h>
+#include <errno.h>
 #include <stdint.h>
 
 static uint32_t get_inode_block_size(struct filesystem *fs)
@@ -17,25 +18,35 @@ static uint32_t get_inode_block(struct filesystem *fs, uint32_t inode_id)
 	return fs->superblock.inode_table_block + inode_id * inode_block_size;
 }
 
+/**
+ * inode_alloc() -- allocates inode
+ */
 int inode_alloc(struct filesystem *fs)
 {
 	if (!fs || !fs->dev)
-		return -1;
+		return -EINVAL;
 	for (uint32_t i = 0; i < fs->superblock.total_inodes; i++) {
 		uint8_t bit;
-		uint32_t block = i / (8 * get_inode_block_size(fs) * fs->superblock.block_size) + fs->superblock.inode_table_block;
-		uint32_t bit_offset = i % (8 * get_inode_block_size(fs) * fs->superblock.block_size);
+		uint32_t bits_per_block = fs->superblock.block_size * 8;
+		uint32_t block = i / bits_per_block + fs->superblock.inode_table_block;
+		uint32_t bit_offset = i % bits_per_block;
+#ifndef DEBUG_FS
+		printf("DEBUG: %u, %u, %u, %u\n", bits_per_block, block, i, bit_offset);
+#endif
 		if (bitarr_read_bit(fs->dev, block, bit_offset, &bit))
-			return -2;
+			return -EIO;
 		if (bit)
 			continue;
 		if (bitarr_write_bit(fs->dev, block, bit_offset, 1))
-			return -2;
+			return -EIO;
 		return i;
 	}
-	return -1;
+	return -ENOSPC;
 }
 
+/**
+ * inode_free() -- free inode
+ */
 int inode_free(struct filesystem *fs, uint32_t inode_id)
 {
 	if (!fs || !fs->dev)
@@ -45,6 +56,9 @@ int inode_free(struct filesystem *fs, uint32_t inode_id)
 	return bitarr_write_bit(fs->dev, block, bit_offset, 1);
 }
 
+/**
+ * inode_read() -- reads inode
+ */
 int inode_read(struct filesystem *fs, struct inode *inode, uint32_t inode_id)
 {
 	if (!fs || !fs->dev || !inode)
@@ -90,6 +104,9 @@ int inode_read(struct filesystem *fs, struct inode *inode, uint32_t inode_id)
 	return 0;
 }
 
+/**
+ * inode_write() -- writes inode
+ */
 int inode_write(struct filesystem *fs, struct inode inode, uint32_t inode_id)
 {
 	if (!fs || !fs->dev)

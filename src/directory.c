@@ -1,6 +1,13 @@
 #include <sigmafs-tools/fs.h>
 #include <sigmafs-tools/le.h>
 
+/**
+ * parse_dir_content() -- parses content of directory
+ * @content:		content
+ * @content_len:	length of content
+ * @entries_count:	output; count of entries
+ * @entries:		output; entries
+ */
 int parse_dir_content(uint8_t *content, uint64_t content_len, uint32_t *entries_count, struct directory_entry **entries)
 {
 	if (!entries || !entries_count)
@@ -45,6 +52,13 @@ int parse_dir_content(uint8_t *content, uint64_t content_len, uint32_t *entries_
 	return 0;
 }
 
+/**
+ * serialize_dir_content() -- serializes content of directory
+ * @entries_count:	count of entries
+ * @entries:		entries to serialize
+ * @content:		output; content
+ * @content_len:	output; length of content
+ */
 int serialize_dir_content(uint32_t entries_count, struct directory_entry *entries, uint8_t **content, uint64_t *content_len)
 {
 	if (!entries || !content || !content_len)

@@ -6,6 +6,9 @@ static int get_superblock_pos(size_t block_size)
 	return (SIGMAFS_SUPER_OFFSET + block_size - 1) / block_size;
 }
 
+/**
+ * superblock_write() -- writes superblock to device
+ */
 int superblock_write(struct dev *dev, struct superblock superblock)
 {
 	if (!dev)
@@ -51,6 +54,9 @@ int superblock_write(struct dev *dev, struct superblock superblock)
 	return 0;
 }
 
+/**
+ * superblock_read() -- reads superblock from device
+ */
 int superblock_read(struct dev *dev, struct superblock *superblock)
 {
 	if (!dev || !superblock)

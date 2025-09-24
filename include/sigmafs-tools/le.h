@@ -2,6 +2,10 @@
 #define _LE_H
 
 
+/*
+ * Functions to work with numbers
+ */
+
 static inline void write_u16_le(uint8_t *buf, uint16_t val)
 {
 	buf[0] = (uint8_t)(val);

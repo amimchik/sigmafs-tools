@@ -1,6 +1,10 @@
 #include <sigmafs-tools/fs.h>
 #include <stdio.h>
 
+/**
+ * data_block_alloc() -- allocates data block
+ * @fs:			filesystem
+ */
 int data_block_alloc(struct filesystem *fs)
 {
 	if (!fs || !fs->dev)
@@ -23,6 +27,11 @@ int data_block_alloc(struct filesystem *fs)
 	return -1;
 }
 
+/**
+ * data_block_free() -- free data block
+ * @fs:			filesystem
+ * @block_id:		id of data block
+ */
 int data_block_free(struct filesystem *fs, uint32_t block_id)
 {
 	if (!fs || !fs->dev)
@@ -32,6 +41,12 @@ int data_block_free(struct filesystem *fs, uint32_t block_id)
 	return bitarr_write_bit(fs->dev, block, bit_offset, 1);
 }
 
+/**
+ * data_block_write() -- write data block
+ * @fs:			filesystem
+ * @block_id:		id of data block
+ * @buf:		buffer
+ */
 int data_block_write(struct filesystem *fs, uint32_t block_id, uint8_t *buf)
 {
 #ifdef DEBUG_FS
@@ -42,6 +57,12 @@ int data_block_write(struct filesystem *fs, uint32_t block_id, uint8_t *buf)
 	return dev_write_block(fs->dev, fs->superblock.data_blocks_start + block_id, buf);
 }
 
+/**
+ * data_block_write() -- write data block
+ * @fs:			filesystem
+ * @block_id:		id of data block
+ * @buf:		buffer
+ */
 int data_block_read(struct filesystem *fs, uint32_t block_id, uint8_t *buf)
 {
 #ifdef DEBUG_FS

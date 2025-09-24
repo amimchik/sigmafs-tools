@@ -115,6 +115,12 @@ static int64_t alloc_back(struct filesystem *fs, struct inode *inode, uint32_t b
 	}
 }
 
+/**
+ * read_file() -- reads content of file
+ * @fs:			filesystem
+ * @inode_id:		id of file inode
+ * @out_buf:		buffer
+ */
 int read_file(struct filesystem *fs, uint32_t inode_id, uint8_t *out_buf)
 {
 	if (!fs || !fs->dev || !out_buf)
@@ -136,6 +142,11 @@ int read_file(struct filesystem *fs, uint32_t inode_id, uint8_t *out_buf)
 	return 0;
 }
 
+/**
+ * free_file_content() -- free file content
+ * @fs:			filesystem
+ * @inode_id:		id of file
+ */
 int free_file_content(struct filesystem *fs, uint32_t inode_id)
 {
 	if (!fs || !fs->dev)
@@ -153,6 +164,13 @@ int free_file_content(struct filesystem *fs, uint32_t inode_id)
 	return 0;
 }
 
+/**
+ * write_file() -- writes data to file
+ * @fs:			filesystem
+ * @inode_id:		inode id of file
+ * @in_buf:		buffer
+ * @size:		buffer size
+ */
 int write_file(struct filesystem *fs, uint32_t inode_id, uint8_t *in_buf, uint64_t size)
 {
 	if (!fs || !fs->dev || !in_buf)
