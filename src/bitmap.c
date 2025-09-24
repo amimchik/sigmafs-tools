@@ -1,4 +1,5 @@
 #include <sigmafs-tools/fs.h>
+#include <errno.h>
 
 /**
  * bitarr_write_bit() -- writes bit to device

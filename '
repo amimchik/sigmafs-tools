@@ -63,7 +63,7 @@ int main()
 {
 	struct dev dev;
 	struct filesystem fs;
-	int ret = dev_create_ramdisk(&dev, 512, 800);
+	int ret = dev_create_ramdisk(&dev, 512, 200);
 	if (ret < 0) {
 		fprintf(stderr, "error creating ramdisk: %d\n", ret);
 		ret = 1;
@@ -72,23 +72,11 @@ int main()
 	ret = make_fs(&dev, &fs, fs.superblock);
 	if (ret) {
 		fprintf(stderr, "error creating fs: %d\n", ret);
-		ret = 2;
+		ret = 1;
 		goto out;
 	}
-	for (uint32_t i = 0; i < 5; i++) {
-		ret = inode_alloc(&fs);
-		if (ret < 0) {
-			ret = 3;
-			goto out;
-		}
-		printf("allocated: %d\n", ret);
-		ret = 0;
-	}
-	dump_inode_alloc_table(&fs);
-	return 0;
+	
 out:
 	dev_free(&dev);
-	if (ret)
-		fprintf(stderr, "ERROR: %d\n", ret);
-	return ret ? 1 : 0;
+	return ret;
 }

@@ -1,4 +1,5 @@
 #include <sigmafs-tools/fs.h>
+#include <errno.h>
 
 static inline int get_first_free_block(uint32_t block_size)
 {
@@ -17,10 +18,11 @@ static uint32_t get_inode_block_size(struct filesystem *fs)
  */
 int make_fs(struct dev *dev, struct filesystem *output, struct superblock initial_super)
 {
+	int ret = 0;
 	if (!dev)
-		return 1;
-	if (dev->blocks_count * dev->block_size <= (size_t)get_first_free_block(dev->block_size))
-		return 2;
+		return -EINVAL;
+	if (dev->blocks_count <= (size_t)get_first_free_block(dev->block_size))
+		return -ENOSPC;
 	uint32_t first_free_block = get_first_free_block(dev->block_size);
 	output->dev = dev;
 	output->superblock = initial_super;
@@ -49,34 +51,37 @@ int make_fs(struct dev *dev, struct filesystem *output, struct superblock initia
 	output->superblock.data_blocks_start = output->superblock.block_bitmap_block + dblock_bmap_size;
 	superblock_write(dev, output->superblock);
 	{
-		uint8_t *buf = malloc(output->superblock.block_size);
+		uint8_t *buf = calloc(1, output->superblock.block_size);
 		if (!buf)
-			return 1;
-		for (uint32_t i = 0; i < output->superblock.block_size; i++)
-			buf[i] = 0;
-		for (uint32_t i = 0; i < output->superblock.inode_table_block - output->superblock.inode_bitmap_block; i++) {
+			return -ENOMEM;
+		for (uint32_t i = 0; i < inode_bmap_size; i++)
 			dev_write_block(output->dev, output->superblock.inode_bitmap_block + i, buf);
-		}
-		for (uint32_t i = 0; i < output->superblock.data_blocks_start - output->superblock.block_bitmap_block; i++) {
+		for (uint32_t i = 0; i < dblock_bmap_size; i++)
 			dev_write_block(output->dev, output->superblock.block_bitmap_block + i, buf);
-		}
+		free(buf);
+	}
+	int allocated = inode_alloc(output);
+	if (allocated != SIGMAFS_ROOT_INODE_ID) {
+		fprintf(stderr, "RETURNED NOT ROOT_INODE_ID %d\n", allocated);
+		inode_free(output, allocated);
+		return -EIO;
 	}
 	struct inode root_dir;
 	root_dir.i_mode = imode_create(IMODE_IFDIR, 0755);
 	root_dir.f_size = 0;
-	inode_write(output, root_dir, 0);
+	inode_write(output, root_dir, SIGMAFS_ROOT_INODE_ID);
 	struct directory_entry root_content[2];
 	root_content[0].name_len = 1;
 	root_content[0].name[0] = '.';
-	root_content[0].inode_id = 0;
+	root_content[0].inode_id = SIGMAFS_ROOT_INODE_ID;
 	root_content[1].name_len = 2;
 	root_content[1].name[0] = '.';
 	root_content[1].name[1] = '.';
-	root_content[1].inode_id = 0;
-	int error = set_dir_content(output, 0, root_content, 2);
-	if (error) {
-		fprintf(stderr, "ERR: %d\n", error);
-		return 4;
+	root_content[1].inode_id = SIGMAFS_ROOT_INODE_ID;
+	int err = set_dir_content(output, SIGMAFS_ROOT_INODE_ID, root_content, 2);
+	if (err) {
+		fprintf(stderr, "ERR: %d\n", err);
+		return -EIO;
 	}
 	return 0;
 }

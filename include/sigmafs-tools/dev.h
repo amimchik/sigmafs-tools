@@ -30,4 +30,6 @@ int dev_create_file(struct dev *out, const char *path, size_t block_size, size_t
 int dev_read_block(struct dev *dev, size_t block_n, uint8_t *buf);
 int dev_write_block(struct dev *dev, size_t block_n, uint8_t *buf);
 
+int dev_free(struct dev *dev);
+
 #endif /*!_DEV_H*/

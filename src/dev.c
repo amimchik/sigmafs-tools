@@ -121,3 +121,26 @@ int dev_write_block(struct dev *dev, size_t block_n, uint8_t *buf)
 	}
 	return 0;
 }
+
+/**
+ * dev_free() -- free device
+ * @dev:		device
+ */
+int dev_free(struct dev *dev)
+{
+	if (!dev)
+		return -EINVAL;
+	switch (dev->type) {
+		case DT_RAM:
+			free(dev->ram);
+			return 0;
+		case DT_FILE: {
+			int ret = fclose(dev->f);
+			if (ret)
+				return -EIO;
+			return 0;
+		}
+		default:
+			return -EINVAL;
+	}
+}
