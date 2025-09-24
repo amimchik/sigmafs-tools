@@ -75,16 +75,14 @@ int main()
 		ret = 2;
 		goto out;
 	}
-	for (uint32_t i = 0; i < 5; i++) {
-		ret = inode_alloc(&fs);
-		if (ret < 0) {
-			ret = 3;
-			goto out;
-		}
-		printf("allocated: %d\n", ret);
-		ret = 0;
+	struct fs_interface_state i;
+	ret = create_fs_interface(&fs, &i);
+	if (ret) {
+		fprintf(stderr, "error creating fs interface: %d\n", ret);
+		ret = 2;
+		goto out;
 	}
-	dump_inode_alloc_table(&fs);
+	shell_run(&i);
 	return 0;
 out:
 	dev_free(&dev);

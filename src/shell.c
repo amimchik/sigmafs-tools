@@ -32,9 +32,9 @@ static void l_ls(struct fs_interface_state *state)
 {
 	struct directory_entry *entries;
 	uint32_t len = 0;
-	int error = fs_interface_ls(state, &entries, &len);
-	if (error) {
-		printf("error ls: %d\n", error);
+	int err = fs_interface_ls(state, &entries, &len);
+	if (err) {
+		printf("error ls: %d\n", err);
 		return;
 	}
 	for (uint32_t i = 0; i < len; i++) {

@@ -30,7 +30,7 @@ int inode_alloc(struct filesystem *fs)
 		uint32_t bits_per_block = fs->superblock.block_size * 8;
 		uint32_t block = i / bits_per_block + fs->superblock.inode_bitmap_block;
 		uint32_t bit_offset = i % bits_per_block;
-#ifndef DEBUG_FS
+#ifdef DEBUG_FS
 		printf("DEBUG: %u, %u, %u, %u\n", bits_per_block, block, i, bit_offset);
 #endif
 		if (bitarr_read_bit(fs->dev, block, bit_offset, &bit))
@@ -52,10 +52,10 @@ int inode_free(struct filesystem *fs, uint32_t inode_id)
 	if (!fs || !fs->dev)
 		return -EINVAL;
 	uint32_t block = 
-		inode_id / (8 * get_inode_block_size(fs) * fs->superblock.block_size) + fs->superblock.inode_table_block;
+		inode_id / (8 * get_inode_block_size(fs) * fs->superblock.block_size) + fs->superblock.inode_bitmap_block;
 	uint32_t bit_offset = inode_id % (8 * get_inode_block_size(fs) * fs->superblock.block_size);
 	int ret = bitarr_write_bit(fs->dev, block, bit_offset, 1);
-	if (ret)
+	if (ret < 0)
 		return -EIO;
 	return 0;
 }
